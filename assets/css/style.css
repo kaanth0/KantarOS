@@ -1,0 +1,137 @@
+/* ==========================================================
+   VIP FINTECH SAAS - ULTRA MODERN DARK/LIGHT THEME STYLES
+   ========================================================== */
+
+:root {
+    --bg-main: #090d16;
+    --card-bg: #111827;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    letter-spacing: -0.2px;
+}
+
+/* VIP Header / Title */
+h2, h3, h5 {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Lüks Cam Efektli (Glassmorphism) Kartlar */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+/* Üst Özet Kartları (VIP Neon Gradyanlar) */
+.metric-card-income {
+    background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.2);
+}
+
+.metric-card-expense {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #dc2626 100%);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.2);
+}
+
+.metric-card-net {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+}
+
+.card[class*="metric-card-"] span {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Dönem Seçici ve Butonlar */
+.form-control, .form-select {
+    background-color: #1f2937 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-radius: 10px;
+}
+
+.form-control:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #059669, #10b981);
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #047857, #059669);
+}
+
+.btn-custom {
+    border-radius: 10px;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+}
+
+/* Tablolar (VIP Dark Mode Uyumlu) */
+.table {
+    color: #f8fafc !important;
+    margin-bottom: 0;
+}
+
+.table-custom th {
+    background-color: #1a2234 !important;
+    color: #cbd5e1 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 14px 16px;
+}
+
+.table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    background-color: transparent !important;
+    color: #e2e8f0 !important;
+}
+
+.table-hover tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Özel Badge'ler */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 6px 12px;
+    border-radius: 8px;
+}

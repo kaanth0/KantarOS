@@ -57,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
                                 $val = "";
                                 $t = (string)$cell['t'];
                                 
-                                // Değerin nerede saklandığını kontrol et (Inline string, Shared string veya direkt v)
                                 if (isset($cell->is->t)) {
                                     $val = (string)$cell->is->t;
                                 } elseif ($t == 's' && isset($cell->v)) {
@@ -70,8 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
                                 $hucreler[$colIndex] = trim($val);
                             }
 
-                            // SÜTUN ENDEXLERİ:
-                            // 0: Fiş/S. No, 1: Tarih, 2: Gittiği Yer, 3: Cinsi, 4: Ağırlık, 5: Kg Fiat, 6: Toplam, 7: Nakliye, 8: G.Top, 9: Durum, 11: Plaka
                             $fis_no     = $hucreler[0] ?? '';
                             $tarih_ham  = $hucreler[1] ?? '';
                             $firma_adi  = $hucreler[2] ?? '';
@@ -84,18 +81,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
                             $plaka      = $hucreler[11] ?? '';
                             $islem_tipi = 'Gelir';
 
-                            // Başlık satırını veya boş satırları atla
                             if (empty($fis_no) || empty($tarih_ham) || $fis_no == 'S.' || $fis_no == 'FİŞ NO' || empty($firma_adi)) {
                                 continue;
                             }
 
-                            // Tarih Dönüştürücü
                             $tarih = '';
                             if (is_numeric($tarih_ham)) {
                                 $tarih = date('Y-m-d', ($tarih_ham - 25569) * 86400);
                             } else {
                                 $tarih_ham = str_replace(['.', '/'], '-', $tarih_ham);
-                                // Gün.Ay.Yıl formatı için düzeltme (Örn: 01.01.2026)
                                 $parcalar = explode('-', $tarih_ham);
                                 if (count($parcalar) == 3 && strlen($parcalar[0]) <= 2) {
                                     $tarih_ham = $parcalar[2] . '-' . $parcalar[1] . '-' . $parcalar[0];
@@ -113,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
                             $gercek_fis = preg_replace('/[^0-9]/', '', $fis_no);
                             if (empty($gercek_fis)) $gercek_fis = $fis_no;
 
-                            // Cari Kontrolü / Ekleme
                             $cariSorgu = $db->prepare("SELECT id FROM cariler WHERE firma_adi = ?");
                             $cariSorgu->execute([$firma_adi]);
                             $cari = $cariSorgu->fetch(PDO::FETCH_ASSOC);
@@ -126,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
                                 $cari_id = $cari['id'];
                             }
 
-                            // Mükerrer Kontrolü
                             $kontrolSorgu = $db->prepare("SELECT id FROM islemler WHERE fis_no = ? AND islem_tarihi = ?");
                             $kontrolSorgu->execute([$gercek_fis, $tarih]);
                             $ayniKayitVarMi = $kontrolSorgu->fetch(PDO::FETCH_ASSOC);
@@ -165,17 +157,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Kantar Yükle — Finans Otomasyonu</title>
+    <title>Kantar Yükle — KantarOS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<div class="container my-5" style="max-width: 650px;">
+<div class="container my-5" style="max-width: 750px;">
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
             <h3 class="fw-bold mb-1">📊 Kantar Föylerini İçeri Aktar</h3>
-            <p class="text-muted small mb-0">Tüm formatlar (Inline ve Shared Strings) desteklenir.</p>
+            <p class="text-muted small mb-0">Çoklu sekmeli Excel yapıları tam uyumla desteklenir.</p>
         </div>
         <a href="index.php" class="btn btn-outline-light btn-sm rounded-3">← Panele Dön</a>
     </div>
@@ -186,12 +178,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['excel_dosya'])) {
         </div>
     <?php endif; ?>
 
-    <div class="card p-4 shadow-lg">
+    <!-- FORMAT REHBERİ -->
+    <div class="card p-4 shadow-lg mb-4 bg-dark border-secondary">
+        <h5 class="text-info fw-bold mb-3">ℹ️ Excel Dosya Formatı Nasıl Olmalı?</h5>
+        <p class="text-muted small mb-2">Sistemin verileri hatasız okuyabilmesi için yükleyeceğiniz Excel dosyasının şu kurallara uyması gerekir:</p>
+        <ul class="text-muted small ps-3 mb-0">
+            <li><strong>Çoklu Sekme:</strong> Her ay ayrı bir sekmede yer alabilir (Örn: <code class="text-light">Oca26</code>, <code class="text-light">Şu26</code> vb.). Motor tüm sekmeleri otomatik tarar.</li>
+            <li><strong>Sütun Sıralaması:</strong> Sütunlar soldan sağa sırasıyla şu düzenle olmalıdır:</li>
+        </ul>
+        <div class="table-responsive mt-3">
+            <table class="table table-dark table-bordered table-sm text-center small mb-0">
+                <thead>
+                    <tr class="text-info">
+                        <th>S. (Fiş No)</th>
+                        <th>TARİH</th>
+                        <th>GİTTİGİ YER</th>
+                        <th>CİNSİ</th>
+                        <th>AGIR. (KG)</th>
+                        <th>KG FİAT</th>
+                        <th>TOPLAM</th>
+                        <th>PLAKA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>01.01.2026</td>
+                        <td>Firma Adı</td>
+                        <td>05Kum</td>
+                        <td>25000</td>
+                        <td>0.85</td>
+                        <td>21250</td>
+                        <td>37ADF846</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card p-4 shadow-lg bg-dark border-secondary">
         <form action="" method="POST" enctype="multipart/form-data">
             <div class="mb-4 text-center p-4 rounded-3" style="border: 2px dashed rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.02);">
-                <div class="fs-1 mb-2">🚀</div>
-                <label for="excel_dosya" class="form-label fw-semibold text-white d-block">Excel Dosyanızı Seçin</label>
-                <input class="form-control" type="file" id="excel_dosya" name="excel_dosya" accept=".xlsx" required>
+                <div class="fs-1 mb-2">📂</div>
+                <label for="excel_dosya" class="form-label fw-semibold text-white d-block">Örnek veya Gerçek .xlsx Dosyanızı Seçin</label>
+                <input class="form-control bg-dark text-white border-secondary" type="file" id="excel_dosya" name="excel_dosya" accept=".xlsx" required>
             </div>
             <div class="d-grid">
                 <button type="submit" class="btn btn-success fw-bold py-2">🔥 Sevkiyatları Yükle</button>
